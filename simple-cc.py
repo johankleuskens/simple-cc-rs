@@ -2,9 +2,6 @@ import  matplotlib.pyplot as plt
 import  math
 import  numpy as np
 import  scipy.special as sc
-from backports.functools_lru_cache import lru_cache
-from _bsddb import DB_VERB_REPMGR_MISC
-from _yaml import yaml
 
 # Based on this URL: https://pwayblog.com/2016/07/03/the-clothoid/
 
@@ -12,11 +9,9 @@ def rotate(cx, cy, angle):
     s = np.sin(angle);
     c = np.cos(angle);
 
-    # rotate point
     xnew = cx * c - cy * s;
     ynew = cx * s + cy * c;
 
-    # translate point back:
     return xnew, ynew;
 
 # compute fresnel integral
@@ -38,7 +33,7 @@ def create_clothoid(l, A, x0 = 0, y0 = 0, theta0 = 0, mirror = 0):
     # caculate various lengths
     t = np.linspace(0, l , 25)
     # correction to be compliant with URl shwon above
-    corr = A*math.sqrt(math.pi)
+    corr = A * math.sqrt(math.pi)
     S, C = sc.fresnel(t / corr)
     
     if (mirror):
@@ -52,7 +47,7 @@ def create_clothoid(l, A, x0 = 0, y0 = 0, theta0 = 0, mirror = 0):
     return px,py
     
 # Define constant A
-A = 6.0
+A = 1000.0
 
 # Minimum turning radius
 R = 4.0
@@ -60,10 +55,10 @@ R = 4.0
 # define angle between two lines
 alpha = 60.0/360.0*np.pi*2
 #calculate gradient of the normal of the mid line
-gr_m = np.arctan(np.pi/2 - alpha/2)
+gr_m = np.tan(alpha/2+ math.pi/2)
 
 # Calculate length at gradient of mid line
-lrc = math.sqrt(np.arctan(gr_m)/(2 * A**2))
+lrc = math.sqrt((math.pi/2-alpha/2) * (2 * A**2))
 # Calculate length when minimum turning radius is reached
 lr = (A**2)/R 
 lr=lrc
@@ -71,8 +66,8 @@ lr=lrc
 lc = min(lrc, lr)
 
 # calculate x and y coordinates of end of clothoid
-corr = A*math.sqrt(math.pi)
-xa,ya = sc.fresnel(lc / corr)
+corr = A * math.sqrt(math.pi)
+ya,xa = sc.fresnel(lc / corr)
 xa = xa * corr
 ya = ya * corr
 #calculate x coordinate of mid line where clothoid meets mid line
