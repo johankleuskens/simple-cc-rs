@@ -47,21 +47,19 @@ def create_clothoid(l, A, x0 = 0, y0 = 0, theta0 = 0, mirror = 0):
     return px,py
     
 # Define constant A
-A = 1000.0
+A = 100.0
 
 # Minimum turning radius
-R = 4.0
+R = 100.0
 
 # define angle between two lines
 alpha = 60.0/360.0*np.pi*2
-#calculate gradient of the normal of the mid line
-gr_m = np.tan(alpha/2+ math.pi/2)
 
 # Calculate length at gradient of mid line
 lrc = math.sqrt((math.pi/2-alpha/2) * (2 * A**2))
 # Calculate length when minimum turning radius is reached
 lr = (A**2)/R 
-lr=lrc
+
 # Calculate length of clothoid
 lc = min(lrc, lr)
 
