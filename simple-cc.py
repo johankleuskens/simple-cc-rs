@@ -14,15 +14,6 @@ def rotate(px, py, angle):
 
     return xnew, ynew;
 
-# compute fresnel integral
-# l : length
-# A : ??
-def fresnel (l, A):
-
-    x = l - l**5/(40*A**4) + l**9/(3456*(A**8)) - l**13/(599040*(A**12))
-    y = l**3/(6*(A**2)) - l**7/(336*(A**6)) + l**11/(42240*(A**10)) - l**15/(9676800*(A**14))
-    return x,y
-
 # Create a clothoid 
 # l:         length of clothoid
 # A:         curvature acceleration
@@ -66,7 +57,7 @@ A = 10.0
 R = 12.0
 
 # define angle between two lines
-alpha = 179.0/360.0*np.pi*2
+alpha = 60.0/360.0*np.pi*2
 
 # Calculate length at gradient of mid line
 lrc = math.sqrt((math.pi/2-alpha/2) * (2 * A**2))
