@@ -5,12 +5,12 @@ import  scipy.special as sc
 
 # Based on this URL: https://pwayblog.com/2016/07/03/the-clothoid/
 
-def rotate(cx, cy, angle):
+def rotate(px, py, angle):
     s = np.sin(angle);
     c = np.cos(angle);
 
-    xnew = cx * c - cy * s;
-    ynew = cx * s + cy * c;
+    xnew = px * c - py * s;
+    ynew = px * s + py * c;
 
     return xnew, ynew;
 
@@ -29,31 +29,44 @@ def fresnel (l, A):
 # x0:        x offset coordinate
 # y0:        y offset coordinate
 # theta0:    offset angle
-def create_clothoid(l, A, x0 = 0, y0 = 0, theta0 = 0, mirror = 0):
-    # caculate various lengths
+# reverse:   go in opposite direction
+# flip:     flip along x axis
+def create_clothoid(l, A, x0 = 0, y0 = 0, theta0 = 0, reverse = False):
+    # calculate various lengths
     t = np.linspace(0, l , 25)
     # correction to be compliant with URl shwon above
     corr = A * math.sqrt(math.pi)
     S, C = sc.fresnel(t / corr)
+
+    c, s = rotate(C, S, theta0)             
     
-    if (mirror):
-        c = x0 - np.array(C) * corr
+    if (reverse):
+        c = x0 - np.array(c) * corr
     else:
-        c = x0 + np.array(C) * corr
+        c = x0 + np.array(c) * corr
  
-    s = y0 + np.array(S) * corr
+    s = y0 + np.array(s) * corr
     px, py = rotate(c, s, 0)
     
     return px,py
+
+def create_circle(R, x0, y0, arc, angle):
+    # compute 10 points
+    arcs = np.linspace(0, arc, 10)
+    x = R * np.cos (arcs)
+    y = R * np.sin(arcs)
     
+    xr, yr = rotate(x, y, angle) 
+    return xr+x0, yr+y0
+
 # Define constant A
-A = 100.0
+A = 10.0
 
 # Minimum turning radius
-R = 100.0
+R = 12.0
 
 # define angle between two lines
-alpha = 60.0/360.0*np.pi*2
+alpha = 179.0/360.0*np.pi*2
 
 # Calculate length at gradient of mid line
 lrc = math.sqrt((math.pi/2-alpha/2) * (2 * A**2))
@@ -68,26 +81,38 @@ corr = A * math.sqrt(math.pi)
 ya,xa = sc.fresnel(lc / corr)
 xa = xa * corr
 ya = ya * corr
-#calculate x coordinate of mid line where clothoid meets mid line
-xb = ya/np.tan(alpha/2)
+#calculate angle at end of clothoid
+beta = math.pi/2 - lc**2/(2 * A**2)
 
-# plot the intersection of mid line and clothoid
-plt.plot(xb, ya, 'ro')
 
-# Create an array of lengths
-#t = np.linspace(0, min(l90, lr) , 25)
-# Calculate x and y coordinates for each length
-#xy = [fresnel(tt, A) for tt in t]
-# Subtract the x coordinates
-#x = [val[0] for val in xy]
-# Subtract the y coordinates
-#y = [val[1] for val in xy]
+# calculate coordinate of center point of circle
+dyb = R * np.sin(beta)
+dxb = R * np.cos(beta)
+ry = ya + dyb
+rx = ry/np.tan(alpha/2)
+xb = rx-dxb
+plt.plot(rx, ry, 'ro')
 
-c, s = create_clothoid(lc, A, x0=xa+xb, y0=0, theta0=0, mirror=True)
+# calculate arc length of cirle
+gamma = beta - alpha/2
+
+xc, yc = create_circle(R, rx, ry, arc=2*gamma, angle=beta - 2*gamma - math.pi)
+plt.plot(xc, yc, 'g')
+
+# show an arrow for the gradient at the end of the  first clothoid
+# plt.arrow(xb, ya, 10*math.cos(beta), 10*math.sin(beta))
+
+# calculate first clothoid
+cf, sf = create_clothoid(lc, A, x0=xa+xb, y0=0, theta0=0, reverse=True)
+
+# calculate start point of second clothoid
+xas = (xa+xb)*np.cos(alpha)
+yas = (xa+xb)*np.sin(alpha)
+cs, ss = create_clothoid(lc, A, x0=xas, y0=yas, theta0=alpha-math.pi)
 
 # plot the two lines
 plt.plot([0,xa+xb], [0,0], 'b')
-plt.plot([0,(xa+xb)*np.cos(alpha)], [0,(xa+xb)*np.sin(alpha)], 'b')
+plt.plot([0,xas], [0,yas], 'b')
 #plot the mid line
 plt.plot([0,(xa+xb)*np.cos(alpha/2)], [0,(xa+xb)*np.sin(alpha/2)], 'b--')
 
@@ -95,7 +120,8 @@ plt.plot([0,(xa+xb)*np.cos(alpha/2)], [0,(xa+xb)*np.sin(alpha/2)], 'b--')
 # Calculate gradient of each point
 #g = [math.tan(l**2/(2*(A**2))) for l in t]
 #plt.plot(x, y, 'g')
-plt.plot(c, s, 'r--')
+plt.plot(cf, sf, 'r--')
+plt.plot(cs, ss, 'r--')
 plt.show()
 
 print("Ready")
