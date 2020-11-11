@@ -51,13 +51,13 @@ def create_circle(R, x0, y0, arc, angle):
     return xr+x0, yr+y0
 
 # Define constant A
-A = 10.0
+A = 2.2
 
 # Minimum turning radius
-R = 12.0
+R = 4.0
 
 # define angle between two lines
-alpha = 60.0/360.0*np.pi*2
+alpha = 90.0/360.0*np.pi*2
 
 # Calculate length at gradient of mid line
 lrc = math.sqrt((math.pi/2-alpha/2) * (2 * A**2))
