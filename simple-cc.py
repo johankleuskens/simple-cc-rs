@@ -3,6 +3,9 @@ import  math
 import  numpy as np
 import  scipy.special as sc
 
+# Author: Johan Kleuskens (johan.kleuskens@phact.nl)
+# Date : 11-11-2020
+
 # Based on this URL: https://pwayblog.com/2016/07/03/the-clothoid/
 
 def rotate(px, py, angle):
@@ -50,8 +53,10 @@ def create_circle(R, x0, y0, arc, angle):
     xr, yr = rotate(x, y, angle) 
     return xr+x0, yr+y0
 
+sigma = 0.2
+
 # Define constant A
-A = 2.2
+A = 1/math.sqrt(sigma)
 
 # Minimum turning radius
 R = 4.0
